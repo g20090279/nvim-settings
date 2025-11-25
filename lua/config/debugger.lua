@@ -1,5 +1,4 @@
 local home = os.getenv("HOME") or os.getenv("USERPROFILE")
-local is_windows = vim.loop.os_uname().sysname == "Windows_NT"
 
 require("dapui").setup({
     layouts = {
@@ -52,7 +51,7 @@ dap.adapters.gdb = {
 
 dap.adapters.cppdbg = {
     type = 'executable',
-    command = home .. '/.vscode-server/extensions/ms-vscode.cpptools-1.26.3-linux-x64/debugAdapters/bin/OpenDebugAD7',
+    command = home .. '/.vscode-server/extensions/ms-vscode.cpptools-1.28.3-linux-x64/debugAdapters/bin/OpenDebugAD7',
     id = 'cppdbg',
 }
 
@@ -91,48 +90,48 @@ dap.configurations.cpp = {
         exterminalConsole = true,  -- suppress the warning gdb failed to set controlling terminal
         setupCommands = {
             {
-                description = 'Enable pretty-printing for gdb',
-                text = '-enable-pretty-printing',
+                description = "Enable pretty-printing for gdb",
+                text = "-enable-pretty-printing",
                 ignoreFailures = true,
             },
             {
-                description = 'Load local .gdbinit',
-                text = 'source ' .. home .. '/.gdbinit',
+                description = 'Add VBit Pretty Printer',
+                text = 'source ${env:HOME}/opt/ASIP-Pretty-Printer/trvXXpXx_chess_pretty_printing.py',
                 ignoreFailures = true
             },
             {
-                description = 'Set GDB log file',
-                text = '-gdb-set logging file ' .. logfile,
+                description = "Set GDB log file",
+                text = "-gdb-set logging file " .. logfile,
                 ignoreFailures = true
             },
             {
-                description = 'Overwrite log file',
-                text = 'set logging overwrite on',
+                description = "Overwrite log file",
+                text = "set logging overwrite on",
                 ignoreFailures = true
             },
             {
-                description = 'Disable pagination',
-                text = 'set pagination off',
+                description = "Disable pagination",
+                text = "set pagination off",
                 ignoreFailures = true
             },
             {
-                description = 'Show all array elements',
-                text = 'set print elements 0',
+                description = "Show all array elements",
+                text = "set print elements 0",
                 ignoreFailures = true
             },
             {
-                description = 'Trace commands',
-                text = 'set trace-commands on',
+                description = "Trace commands",
+                text = "set trace-commands on",
                 ignoreFailures = true
             },
             {
-                description = 'Print current working directory',
-                text = 'pwd',
+                description = "Print current working directory",
+                text = "pwd",
                 ignoreFailures = true
             },
             -- {
             --     description = 'Load Additional Setting',
-            --     text = 'source ' .. home .. '/path/to/pyprint_mrc_normHSqr.py',
+            --     text = 'source ${env:HOME}/opt/path/to/pyprint_file.py',
             --     ignoreFailures = true
             -- },
         },
@@ -176,7 +175,7 @@ dap.configurations.cpp = {
             },
             {
                 description = 'Add VBit Pretty Printer',
-                text = "source ${env:HOME}/opt/ASIP-Pretty-Printer/trv32p5x_chess_pretty_printing.py",
+                text = 'source ${env:HOME}/opt/ASIP-Pretty-Printer/trvXXpXx_chess_pretty_printing.py',
                 ignoreFailures = true
             },
             {
@@ -230,11 +229,12 @@ dap.configurations.cpp = {
         end,
         cwd = "${workspaceFolder}",
         stopAtBeginningOfMainSubprogram = false,
-    }
+    },
 }
+dap.configurations.c = dap.configurations.cpp
 
 -- Configure dap for Python
-require("dap-python").setup("~/.virtualenvs/debugpy/bin/python", {
+require('dap-python').setup(home .. '/.virtualenvs/debugpy/bin/python', {
     rocks = {
         enabled = true,
     }
@@ -253,9 +253,9 @@ require('dap').configurations.python = {
         request = 'launch',
         cwd = get_project_root(),
         program = '${file}',
-        console = 'integratedTerminal',  -- or 'externalTerminal' if needed
+        console = 'integratedTerminal',  -- or "externalTerminal" if needed
         pythonPath = function()
-            return '~/.virtualenvs/debugpy/bin/python'
+            return home .. '/.virtualenvs/debugpy/bin/python'
         end,
     },
     {
@@ -264,10 +264,10 @@ require('dap').configurations.python = {
         request = 'launch',
         cwd = get_project_root(),
         program = '${file}',
-        args = { '-r', '-b' },  -- ← Your script's arguments
-        console = 'integratedTerminal',  -- or 'externalTerminal' if needed
+        args = { '-n' },  -- ← Your script's arguments
+        console = 'integratedTerminal',  -- or "externalTerminal" if needed
         pythonPath = function()
-            return '~/.virtualenvs/debugpy/bin/python'  -- ← Your venv path
+            return home .. '/.virtualenvs/debugpy/bin/python'  -- venv path
         end,
     },
 }

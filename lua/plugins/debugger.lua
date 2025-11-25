@@ -12,7 +12,7 @@ return {
         "rcarriga/nvim-dap-ui",
         dependencies = {
             "mfussenegger/nvim-dap",
-            "nvim-neotest/nvim-nio",
+            "nvim-neotest/nvim-nio"
         },
     },
 
@@ -20,5 +20,6 @@ return {
     {
         "mfussenegger/nvim-dap-python",
         dependencies = { "mfussenegger/nvim-dap", },
+        opt = { rocks = { hererocks = true, }, },
     },
 }

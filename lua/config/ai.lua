@@ -1,25 +1,17 @@
-require('minuet').setup {
-    provider = 'gemini',
-    provider_options = {
-        gemini = {
-            api_key = os.getenv("GEMINI_API_KEY"),
-            model = "gemini-2.0-flash",  -- or whichever Gemini model you prefer
-            -- optional settings:
-            optional = {
-                max_tokens = 256,
-                top_p = 0.9,
-            },
-        },
-    },
-    virtualtext = {
-        auto_trigger_ft = { "lua", "python", "javascript" },
-        keymap = {
-            accept = '<A-A>',
-            accept_line = '<A-a>',
-            next = '<A-]>',
-            prev = '<A-[>',
-            dismiss = '<A-e>',
-        },
-    },
-}
-
+-- require('minuet').setup({
+--     provider = 'gemini',
+--     gemini = {
+--         model = 'gemini-2.0-flash',
+--         api_key_name = 'GEMINI_API_KEY', -- reads from env var
+--         temperature = 0.2,
+--     },
+--     virtualtext = {
+--         auto_trigger_ft = { "c", "cpp", "python", "lua", "typescript" },
+--         keymap = {
+--             accept = '<A-a>',
+--             next = '<A-n>',
+--             prev = '<A-p>',
+--             dismiss = '<A-e>',
+--         },
+--     },
+-- })

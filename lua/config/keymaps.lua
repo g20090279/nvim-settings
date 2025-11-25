@@ -4,25 +4,31 @@ local km = vim.keymap
 --  Keymaps for copying file name and path to clipboard  --
 -----------------------------------------------------------
 km.set("n", "<leader>cf", function()
-        vim.fn.setreg('+', vim.fn.expand('%'))
-        print('Copied file name to clipboard: ' .. vim.fn.expand('%'))
-    end, { desc = "Copy relative path file to clipboard" })
+    vim.fn.setreg('+', vim.fn.expand('%'))
+    print('Copied file name to clipboard: ' .. vim.fn.expand('%'))
+end, { desc = "Copy relative path file to clipboard" })
 km.set("n", "<leader>cF", function()
-        vim.fn.setreg('+', vim.fn.expand('%:p'))
-        print('Copied absolute path file to clipboard: ' .. vim.fn.expand('%:p'))
-    end, { desc = "Copy absolute path file to clipboard" })
+    vim.fn.setreg('+', vim.fn.expand('%:p'))
+    print('Copied absolute path file to clipboard: ' .. vim.fn.expand('%:p'))
+end, { desc = "Copy absolute path file to clipboard" })
 km.set("n", "<leader>cfn", function()
-        vim.fn.setreg('+', vim.fn.expand('%:t'))
-        print('Copied only file name to clipboard: ' .. vim.fn.expand('%:t'))
-    end, { desc = "Copy only file name to clipboard" })
+    vim.fn.setreg('+', vim.fn.expand('%:t'))
+    print('Copied only file name to clipboard: ' .. vim.fn.expand('%:t'))
+end, { desc = "Copy only file name to clipboard" })
 km.set("n", "<leader>cp", function()
-        vim.fn.setreg('+', vim.fn.expand('%:h'))
-        print('Copied relative path to clipboard: ' .. vim.fn.expand('%:h'))
-    end, { desc = "Copy relative path to clipboard" })
+    vim.fn.setreg('+', vim.fn.expand('%:h'))
+    print('Copied relative path to clipboard: ' .. vim.fn.expand('%:h'))
+end, { desc = "Copy relative path to clipboard" })
 km.set("n", "<leader>cP", function()
-        vim.fn.setreg('+', vim.fn.expand('%:p:h'))
-        print('Copied absolute path to clipboard: ' .. vim.fn.expand('%:p:h'))
-    end, { desc = "Copy absolute path to clipboard" })
+    vim.fn.setreg('+', vim.fn.expand('%:p:h'))
+    print('Copied absolute path to clipboard: ' .. vim.fn.expand('%:p:h'))
+end, { desc = "Copy absolute path to clipboard" })
+
+----------------------------
+--  Keymaps for NERDTree  --
+----------------------------
+km.set("n", "<leader>ee", ":NERDTreeToggle<CR>", { noremap = true, silent = true, desc = "Toggle NvimTree" })
+km.set("n", "<leader>ef", ":NERDTreeFind<CR>", { noremap = true, silent = true, desc = "Toggle NvimTree" })
 
 --------------------------
 --  Keymaps for FzfLua  --
@@ -48,12 +54,6 @@ km.set("n", "<leader>fdv", "<cmd>FzfLua dap_variables<CR>", { desc = "Fuzzy find
 km.set("n", "<leader>fdb", "<cmd>FzfLua dap_breakpoints<CR>", { desc = "Fuzzy find breakpoints in DAP" })
 km.set("n", "<leader>fdc", "<cmd>FzfLua dap_commands<CR>", { desc = "Fuzzy find commands in DAP" })
 
-----------------------------
---  Keymaps for NERDTree  --
-----------------------------
-km.set("n", "<leader>ee", ":NERDTreeToggle<CR>", { noremap = true, silent = true, desc = "Toggle NvimTree" })
-km.set("n", "<leader>ef", ":NERDTreeFind<CR>", { noremap = true, silent = true, desc = "Toggle NvimTree" })
-
 -----------------------------------------
 --  Keymaps for .c/.cpp/.h/.hpp files  --
 -----------------------------------------
@@ -67,15 +67,147 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
------------------------------
---  Keymaps for undo tree  --
------------------------------
-km.set('n', '<leader>u', vim.cmd.UndotreeToggle)
+
+---------------------------
+--  Keymaps for harpoon  --
+---------------------------
+local harpoon = require("harpoon")
+km.set("n", "<leader>ha", function() harpoon:list():add() end)
+km.set("n", "<leader>hs", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+
+km.set("n", "<leader>h1", function() harpoon:list():select(1) end)
+km.set("n", "<leader>h2", function() harpoon:list():select(2) end)
+km.set("n", "<leader>h3", function() harpoon:list():select(3) end)
+km.set("n", "<leader>h4", function() harpoon:list():select(4) end)
+
+-- Toggle previous & next buffers stored within Harpoon list
+km.set("n", "<leader>hp", function() harpoon:list():prev() end)
+km.set("n", "<leader>hn", function() harpoon:list():next() end)
+
+vim.keymap.set("n", "<leader>hd1", function()
+    local harpoon = require("harpoon")
+    harpoon:list():remove()
+end, { desc = "Harpoon: remove current file" })
+
+vim.keymap.set("n", "<leader>hd1", function()
+    require("harpoon"):list():remove(1)
+end)
+
+vim.keymap.set("n", "<leader>hd2", function()
+    require("harpoon"):list():remove(2)
+end)
+
+vim.keymap.set("n", "<leader>hd3", function()
+    require("harpoon"):list():remove(3)
+end)
+
+vim.keymap.set("n", "<leader>hd4", function()
+    require("harpoon"):list():remove(4)
+end)
+
+
+------------------------------------------------
+--  Keymaps for DAP (Debug Adapter Protocol)  --
+------------------------------------------------
+local dap = require('dap')
+local dapui = require("dapui")
+
+local function set_dap_keymaps()
+    km.set('n', '<Down>', dap.step_over, { silent = true, desc = 'DAP Step Over' })
+    km.set('n', '<Right>', dap.step_into, { silent = true, desc = 'DAP Step Into' })
+    km.set('n', '<Left>', dap.step_out, { silent = true, desc = 'DAP Step Out' })
+    km.set('n', '<Up>', dap.restart_frame, { silent = true, desc = 'DAP Restart Frame' })
+end
+
+-- Remove keymaps when debug session ends
+local function clear_dap_keymaps()
+    km.del('n', '<Down>')
+    km.del('n', '<Right>')
+    km.del('n', '<Left>')
+    km.del('n', '<Up>')
+end
+
+-- Set up listeners to set/clear keymaps during DAP sessions
+dap.listeners.after.event_initialized["dap_keymaps"] = function()
+    set_dap_keymaps()
+end
+
+dap.listeners.before.event_terminated["dap_keymaps"] = function()
+    clear_dap_keymaps()
+end
+
+dap.listeners.before.event_exited["dap_keymaps"] = function()
+    clear_dap_keymaps()
+end
+
+km.set('n', '<Leader>db', function() dap.toggle_breakpoint() end, { noremap = true, silent = true })
+km.set('n', '<Leader>dB', function() dap.set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, { noremap = true, silent = true })
+km.set('n', '<Leader>dr', function() dap.continue() end, { desc = "Continue debugging", noremap = true, silent = true })
+km.set('n', '<Leader>dt', function() dap.run_to_cursor() end, { desc="Run to cursor", noremap = true, silent = true })
+km.set('n', '<Leader>de', function() dap.terminate() end, { noremap = true, silent = true })
+km.set('n', '<Leader>dp', function() dap.repl.open() end, { noremap = true, silent = true })
+km.set('n', '<Leader>du', function() dapui.toggle() end, { noremap = true, silent = true, desc = "Open DAP View" })
+km.set('n', '<leader>d1', function() require("dapui").float_element("repl", { enter = true }) end)
+km.set('n', '<leader>d2', function() require("dapui").float_element("scopes", { enter = true }) end)
+km.set('n', '<leader>d3', function() require("dapui").float_element("stacks", { enter = true }) end)
+km.set('n', '<leader>d4', function() require("dapui").float_element("console", { enter = true }) end)
+km.set('n', '<leader>d5', function() require("dapui").float_element("breakpoints", { enter = true }) end)
+km.set('n', '<leader>d6', function() require("dapui").float_element("watches", { enter = true }) end)
+km.set('n', '<leader>dx', function() require("dapui").eval() end, { desc = "DAP Eval under cursor" })
+km.set("v", "<leader>dv", function() require("dapui").eval() end, { desc = "DAP Eval selection" })
+
+local dap_hover_enabled = false
+local dap_hover_group = vim.api.nvim_create_augroup("DapHoverEval", { clear = true })
+
+km.set("n", "<leader>dh", function()
+    dap_hover_enabled = not dap_hover_enabled
+
+    if dap_hover_enabled then
+        -- Enable: create new autocmd
+        vim.api.nvim_clear_autocmds({ group = dap_hover_group })
+        vim.api.nvim_create_autocmd("CursorHold", {
+            group = dap_hover_group,
+            pattern = "*",
+            callback = function()
+                require("dapui").eval(nil, { enter = false })
+            end,
+        })
+        print("DAP hover popup: ON")
+    else
+        -- Disable: clear autocmds AND close any open eval windows
+        vim.api.nvim_clear_autocmds({ group = dap_hover_group })
+
+        -- Close floating eval windows created by dap-ui
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local cfg = vim.api.nvim_win_get_config(win)
+            if cfg.relative ~= "" then -- floating window
+                vim.api.nvim_win_close(win, true)
+            end
+        end
+
+        print("DAP hover popup: OFF")
+    end
+end, { desc = "Toggle DAP hover auto evaluation" })
+
 
 ---------------------------
 --  NVIM System Keymaps  --
 ---------------------------
---  Keymaps for open nvim setting files
+km.set("n", "<leader>ncd", function()
+    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    local target_dir
+
+    if git_root and vim.fn.isdirectory(git_root) == 1 then
+        target_dir = git_root
+    else
+        target_dir = vim.fn.expand("%:p:h")
+    end
+
+    vim.cmd("cd " .. target_dir)
+    print("Working directory changed to: " .. target_dir)
+end, { desc = "Change cwd to Git root or current file directory" })
+
+-- Keymaps for open nvim setting files
 km.set('n', '<leader>nvim', ':tabnew $MYVIMRC<CR>', { noremap = true, silent = true })
 
 -- Keymaps for toggle line number and relative line number
@@ -107,92 +239,34 @@ km.set("n", "<leader>nm", function()
     end
 end, { desc = "Toggle mouse support" })
 
-------------------------------------------------
---  Keymaps for DAP (Debug Adapter Protocol)  --
-------------------------------------------------
-local dap = require('dap')
-local dapui = require("dapui")
 
---dap.listeners.before.attach.dapui_config = function()
---  dapui.open()
---end
---dap.listeners.before.launch.dapui_config = function()
---  dapui.open()
---end
---dap.listeners.before.event_terminated.dapui_config = function()
---  dapui.close()
---end
---dap.listeners.before.event_exited.dapui_config = function()
---  dapui.close()
---end
-
-local function set_dap_keymaps()
-  km.set('n', '<Down>', dap.step_over, { silent = true, desc = 'DAP Step Over' })
-  km.set('n', '<Right>', dap.step_into, { silent = true, desc = 'DAP Step Into' })
-  km.set('n', '<Left>', dap.step_out, { silent = true, desc = 'DAP Step Out' })
-  km.set('n', '<Up>', dap.restart_frame, { silent = true, desc = 'DAP Restart Frame' })
-end
-
--- Remove keymaps when debug session ends
-local function clear_dap_keymaps()
-  km.del('n', '<Down>')
-  km.del('n', '<Right>')
-  km.del('n', '<Left>')
-  km.del('n', '<Up>')
-end
-
--- Set up listeners to set/clear keymaps during DAP sessions
-dap.listeners.after.event_initialized["dap_keymaps"] = function()
-  set_dap_keymaps()
-end
-
-dap.listeners.before.event_terminated["dap_keymaps"] = function()
-  clear_dap_keymaps()
-end
-
-dap.listeners.before.event_exited["dap_keymaps"] = function()
-  clear_dap_keymaps()
-end
-
-km.set('n', '<Leader>b', function() dap.toggle_breakpoint() end, { noremap = true, silent = true })
-km.set('n', '<Leader>B', function() dap.set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, { noremap = true, silent = true })
-km.set('n', '<Leader>dr', function() dap.continue() end, { desc = "Continue debugging", noremap = true, silent = true })
-km.set('n', '<Leader>dt', function() dap.run_to_cursor() end, { desc="Run to cursor", noremap = true, silent = true })
-km.set('n', '<Leader>de', function() dap.terminate() end, { noremap = true, silent = true })
-km.set('n', '<Leader>dp', function() dap.repl.open() end, { noremap = true, silent = true })
-km.set('n', '<Leader>du', function() dapui.toggle() end, { noremap = true, silent = true, desc = "Open DAP View" })
-km.set('n', '<leader>d1', function() require("dapui").float_element("repl", { enter = true }) end)
-km.set('n', '<leader>d2', function() require("dapui").float_element("scopes", { enter = true }) end)
-km.set('n', '<leader>d3', function() require("dapui").float_element("stacks", { enter = true }) end)
-km.set('n', '<leader>d4', function() require("dapui").float_element("console", { enter = true }) end)
-km.set('n', '<leader>d5', function() require("dapui").float_element("breakpoints", { enter = true }) end)
-km.set('n', '<leader>d6', function() require("dapui").float_element("watches", { enter = true }) end)
+------------------------------------
+---  Keymaps for code prettifier  --
+------------------------------------
+km.set("n", "<leader>pl", function()
+    vim.lsp.buf.format({ async = true })
+end)
+km.set("n", "<leader>pf", function()
+    require("conform").format({ async = true })
+end, { desc = "Format file" })
 
 
-km.set("n", "<leader>ncd", function()
-  local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-  local target_dir
+-----------------------------
+--  Keymaps for undo tree  --
+-----------------------------
+km.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 
-  if git_root and vim.fn.isdirectory(git_root) == 1 then
-    target_dir = git_root
-  else
-    target_dir = vim.fn.expand("%:p:h")
-  end
-
-  vim.cmd("cd " .. target_dir)
-  print("Working directory changed to: " .. target_dir)
-end, { desc = "Change cwd to Git root or current file directory" })
 
 ---------------------------------
 --  Keymaps for vim-illuminate --
 ---------------------------------
 -- Go to next reference
-vim.keymap.set("n", "]i", function()
-  require("illuminate").goto_next_reference(true)
+km.set("n", "]i", function()
+    require("illuminate").goto_next_reference(true)
 end, { desc = "Next Reference" })
 
 -- Go to previous reference
-vim.keymap.set("n", "[i", function()
-  require("illuminate").goto_prev_reference(true)
+km.set("n", "[i", function()
+    require("illuminate").goto_prev_reference(true)
 end, { desc = "Prev Reference" })
 
