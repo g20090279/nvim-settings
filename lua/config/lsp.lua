@@ -1,5 +1,5 @@
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "pyright", "clangd", "texlab" }
+    --ensure_installed = { "lua_ls", "pyright", "clangd", "texlab" }
 })
 
 local navic = require("nvim-navic")
