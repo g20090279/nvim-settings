@@ -33,5 +33,11 @@ return {
             "rafamadriz/friendly-snippets",
         },
         --build = "make install_jsregexp"
+    },
+    {
+        'numToStr/Comment.nvim',
+        opts = {
+            -- add any options here
+        }
     }
 }
