@@ -20,6 +20,12 @@ require("conform").setup({
         tex = { "latexindent" },
         cmake = { "cmake_format" },
     },
+
+    formatters = {
+        black = {
+            prepend_args = { "--line-length", "120" },
+        },
+    },
 })
 
 -- confgiure which-key

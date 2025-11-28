@@ -1,5 +1,4 @@
-local home = os.getenv("HOME") or os.getenv("USERPROFILE")
-
+local home = os.getenv("HOME")
 require("dapui").setup({
     layouts = {
         {
@@ -19,6 +18,32 @@ require("dapui").setup({
         },
     },
 })
+
+-- Brighter DAP signs
+local cp = require("catppuccin.palettes").get_palette("mocha")
+vim.fn.sign_define("DapBreakpoint", {
+  text = "●",
+  texthl = "DapBreakpoint",
+  linehl = "",
+  numhl = ""
+})
+
+vim.fn.sign_define("DapStopped", {
+  text = "▶",
+  texthl = "DapStopped",
+  linehl = "",
+  numhl = ""
+})
+
+vim.fn.sign_define("DapBreakpointRejected", {
+  text = "",
+  texthl = "DapBreakpointRejected",
+  linehl = "",
+  numhl = ""
+})
+vim.api.nvim_set_hl(0, "DapBreakpoint",        { fg = cp.red })
+vim.api.nvim_set_hl(0, "DapStopped",           { fg = cp.green })
+vim.api.nvim_set_hl(0, "DapBreakpointRejected",{ fg = cp.maroon })
 
 -- Make REPL nice to read
 vim.api.nvim_create_autocmd("FileType", {
@@ -85,8 +110,24 @@ dap.configurations.cpp = {
         type = 'cppdbg',
         request = 'launch',
         cwd = get_project_root(),
-        program = 'nrs_dbg',
-        args = { "config_file" },
+        program = 'nrsim_dbg',
+        -- args = { "Scn/autoRuns/ltePbchFpTest_autoRun_3" },
+        args = { "Scn/autoRuns/ltePdschFpTest_autoRun_1" },
+        -- args = { "Scn/autoRuns/ltePbchFpTest_autoRun_73" },
+        -- args = { "Scn/autoRuns/regTestU300_autoRun_14_vrbInterleaved" },
+        -- args = { "Scn/autoRuns/regTestU300_autoRun_14_mrc2rx" },
+        -- args = { "Scn/autoRuns/regTestU300_autoRun_8_mrc_maxBw" },
+        -- args = { "Scn/autoRuns/regTestU300_autoRun_sfbc4_pdsch" },
+        -- args = { 'Scn/autoRuns/phichDecodingUnitTest_autoRun_1_sfbc' },
+        -- args = { "Scn/autoRuns/regTestU300_autoRun_16_sfbc2" },
+        -- args = { "Scn/autoRunsTdCoef/lteStandardRegTest_autoRun_374_f6_tdExtCoef" },
+        -- args = { "Scn/autoRunsTable/lteStandardRegTest_autoRun_374_f6_tableFdTd_nCp_ver2" },
+        -- args = { "Scn/autoRunsFdTdTable/lteStandardRegTest_autoRun_374_f6_tableFdTd_nCp_ver1_snr-10dB_doppler0Hz" },
+        -- args = { "Scn/autoRunsTd/lteStandardRegTest_autoRun_374_f6_newTable_eCp" },
+        -- args = { "Scn/autoRuns/blindDecodingHlbVerificationTest_autoRun_1" },
+        -- args = { "Scn/autoRuns/harqHlbVerificationTest_autoRun_72" },   -- nr
+        -- args = { "Scn/autoRuns/harqHlbVerificationTest_autoRun_79" },   -- lte
+        
         exterminalConsole = true,  -- suppress the warning gdb failed to set controlling terminal
         setupCommands = {
             {
@@ -96,7 +137,7 @@ dap.configurations.cpp = {
             },
             {
                 description = 'Add VBit Pretty Printer',
-                text = 'source ${env:HOME}/opt/ASIP-Pretty-Printer/trvXXpXx_chess_pretty_printing.py',
+                text = 'source ${env:HOME}/opt/ASIP-Pretty-Printer/trv32p5x_chess_pretty_printing.py',
                 ignoreFailures = true
             },
             {
@@ -131,7 +172,7 @@ dap.configurations.cpp = {
             },
             -- {
             --     description = 'Load Additional Setting',
-            --     text = 'source ${env:HOME}/opt/path/to/pyprint_file.py',
+            --     text = 'source ${env:HOME}/nfs/home/zekai.liang/opt/runNrsim/printForAsip/pyprint_mrc_normHSqr.py',
             --     ignoreFailures = true
             -- },
         },
@@ -154,7 +195,7 @@ dap.configurations.cpp = {
         environment = {
             {
                 name = 'DSP_TEST_VECTOR_DIR',
-                value = home .. '/workspace/t-v-s',
+                value = home .. '/workspace/dsp-test-vectors',
             }
         },
     },
@@ -166,7 +207,13 @@ dap.configurations.cpp = {
         -- program = function()
         --     return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
         -- end,
-        program = "/path/to/asip-bin",
+        -- program = '/nfs/home/zekai.liang/workspace/asip-development/VDSP/u200/a0/trv32p5x/apps/mrc/build-test02/Build/Debug/test02_mrc',
+        -- program = '/nfs/home/zekai.liang/workspace/asip-development/VDSP/u200/a0/trv32p5x/apps/mrc/build-test01/Build/Debug/test01_mrc',
+        -- program = "/nfs/home/zekai.liang/workspace/asip-development/VDSP/u200/a0/trv32p5x/regression/S14_vmac/Build/test",
+        -- program = "/nfs/home/zekai.liang/workspace/asip-development/VDSP/u200/a0/trv32p5x/regression/S15_vsrs/Build/test",
+        -- program = "/nfs/home/zekai.liang/workspace/asip-development/VDSP/u200/a0/trv32p5x/regression/L11_memcpy/Build/test",
+        -- program = '/nfs/home/zekai.liang/workspace/asip-development/VDSP/u200/a0/trv32p5x/apps/sfbc/Build/Build/Debug/test01_sfbc2',
+        program = '/nfs/home/zekai.liang/workspace/asip-development/VDSP/u200/a0/trv32p5x/regression/S27_wswap/Build/test',
         setupCommands = {
             {
                 description = 'Enable pretty-printing for gdb',
@@ -175,7 +222,7 @@ dap.configurations.cpp = {
             },
             {
                 description = 'Add VBit Pretty Printer',
-                text = 'source ${env:HOME}/opt/ASIP-Pretty-Printer/trvXXpXx_chess_pretty_printing.py',
+                text = 'source ${env:HOME}/opt/ASIP-Pretty-Printer/trv32p5x_chess_pretty_printing.py',
                 ignoreFailures = true
             },
             {
@@ -230,6 +277,9 @@ dap.configurations.cpp = {
         cwd = "${workspaceFolder}",
         stopAtBeginningOfMainSubprogram = false,
     },
+    {
+        name = 'Launch',
+    }
 }
 dap.configurations.c = dap.configurations.cpp
 

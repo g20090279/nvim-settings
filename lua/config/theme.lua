@@ -1,11 +1,6 @@
 --vim.g.seoul256_background = 233
 --vim.cmd.colorscheme("seoul256")  -- seoul256-light
-
-vim.cmd.colorscheme "catppuccin"
-
 -- vim.api.nvim_set_hl(0, "CursorLine", { bg = "#333333" })
-
--- toggleterm-config.lua
 
 local status_ok, toggleterm = pcall(require, "toggleterm")
 if not status_ok then

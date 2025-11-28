@@ -1,17 +1,1 @@
--- require('minuet').setup({
---     provider = 'gemini',
---     gemini = {
---         model = 'gemini-2.0-flash',
---         api_key_name = 'GEMINI_API_KEY', -- reads from env var
---         temperature = 0.2,
---     },
---     virtualtext = {
---         auto_trigger_ft = { "c", "cpp", "python", "lua", "typescript" },
---         keymap = {
---             accept = '<A-a>',
---             next = '<A-n>',
---             prev = '<A-p>',
---             dismiss = '<A-e>',
---         },
---     },
--- })
+---
