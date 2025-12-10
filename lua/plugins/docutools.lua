@@ -2,7 +2,6 @@ return {
     {
         "iamcco/markdown-preview.nvim",
         cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-        ft = "markdown",
         run = 'cd app && npm install',  -- Make sure to install dependencies
         ft = { "markdown" },
     },
@@ -34,6 +33,25 @@ return {
         },
         --build = "make install_jsregexp"
     },
+    {
+        "lervag/vimtex",
+        lazy = false,     -- we don't want to lazy load VimTeX
+        init = function()
+            local sysname = vim.loop.os_uname().sysname
+            if sysname == "Darwin" then  -- macOS
+                vim.g.vimtex_view_method = "skim"
+            elseif sysname == "Linux" then  -- Linux
+                vim.g.vimtex_view_method = "zathura"
+            elseif sysname == "Windows_NT" then  -- Windows
+                vim.g.vimtex_view_method = "general"
+                vim.g.vimtex_view_general_viewer =  "SumatraPDF"
+                vim.g.vimtex_view_general_options = "-reuse-instance -forward-search @tex @line @pdf"
+            else  -- Fallback or unsupported OS
+                vim.g.vimtex_view_method = ""
+            end
+        end
+    },
+    { "norcalli/nvim-colorizer.lua", },
     {
         'numToStr/Comment.nvim',
         opts = {
