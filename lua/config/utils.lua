@@ -4,31 +4,47 @@ harpoon:setup()
 
 -- configure conform
 require("conform").setup({
-    formatters_by_ft = {
-        lua = { "stylua" },
-        python = { "isort", "black" },
-        rust = { "rustfmt", lsp_format = "fallback" },
-        javascript = { "prettierd", "prettier", stop_after_first = true },
-        c = { "clang_format" },
-        cpp = { "clang_format" },
-        h = { "clang_format" },
-        hpp = { "clang_format" },
-        sh = { "shfmt" },
-        bash = { "shfmt" },
-        markdown = { "prettier" },
-        bib = { "bibtex_tidy" },
-        tex = { "latexindent" },
-        cmake = { "cmake_format" },
-    },
+	formatters_by_ft = {
+		lua = { "stylua" },
+		python = { "isort", "black" },
+		--rust = { "rustfmt", lsp_format = "fallback" },
+		javascript = { "prettierd", "prettier", stop_after_first = true },
+		c = { "clang_format" },
+		cpp = { "clang_format" },
+		h = { "clang_format" },
+		hpp = { "clang_format" },
+		sh = { "shfmt" },
+		bash = { "shfmt" },
+		markdown = { "prettier" },
+		bib = { "bibtex_tidy" },
+		bibtex = { "bibtex_tidy" },
+		tex = { "latexindent" },
+		cmake = { "cmake_format" },
+	},
 
-    formatters = {
-        black = {
-            prepend_args = { "--line-length", "120" },
-        },
-    },
+	formatters = {
+		black = {
+			prepend_args = { "--line-length", "300" },
+		},
+		["bibtex-tidy"] = {
+			command = "bibtex-tidy",
+			args = {
+				"--curly",
+				"--numeric",
+				"--space=2",
+				"--align=13",
+				"--sort=key",
+				"--duplicates=key",
+				"--merge",
+				"--strip-comments",
+				"--trailing-commas=false",
+			},
+			stdin = true,
+		},
+	},
 })
 
 -- confgiure which-key
 require("which-key").setup({
-    delay = 1000,  -- before open (ms)
+	delay = 1000, -- before open (ms)
 })

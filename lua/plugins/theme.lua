@@ -48,11 +48,10 @@ return {
     },
     { "MunifTanjim/nui.nvim" },
     { "mhinz/vim-startify" },
-    {
-        "karb94/neoscroll.nvim",
-        opts = {},
-    },
+    -- {
+    --     "karb94/neoscroll.nvim",
+    --     opts = {},
+    -- },
     { "rcarriga/nvim-notify" },
     { "RRethy/vim-illuminate" },
-    {'akinsho/toggleterm.nvim', version = "*", config = true}
 }
