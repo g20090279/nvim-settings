@@ -1,4 +1,5 @@
-local home = os.getenv("HOME") or os.getenv("USERPROFILE")
+-- local home = os.getenv("HOME") or os.getenv("USERPROFILE")
+local home = vim.loop.os_homedir()
 local python = require("common.python")
 
 require("dapui").setup({
@@ -221,6 +222,11 @@ dap.configurations.cpp = {
 				text = "set trace-commands on",
 				ignoreFailures = true,
 			},
+            {
+                description = "Print current working directory",
+                text = "pwd",
+                ignoreFailures = true
+            },
 		},
 		environment = {
 			{
