@@ -1,5 +1,6 @@
 local km = vim.keymap
-local home = os.getenv("HOME") or os.getenv("USERPROFILE")
+-- local home = os.getenv("HOME") or os.getenv("USERPROFILE")
+local home = vim.loop.os_homedir()
 
 -----------------------------------------------------------
 --  Keymaps for copying file name and path to clipboard  --
@@ -55,9 +56,26 @@ km.set("n", "<leader>fdv", "<cmd>FzfLua dap_variables<CR>", { desc = "Fuzzy find
 km.set("n", "<leader>fdb", "<cmd>FzfLua dap_breakpoints<CR>", { desc = "Fuzzy find breakpoints in DAP" })
 km.set("n", "<leader>fdc", "<cmd>FzfLua dap_commands<CR>", { desc = "Fuzzy find commands in DAP" })
 
+
+
 -----------------------------------------
 --  Keymaps for .c/.cpp/.h/.hpp files  --
 -----------------------------------------
+function _G.ClangdSwitchSourceHeader()
+	local params = { uri = vim.uri_from_bufnr(0) }
+	vim.lsp.buf_request(0, "textDocument/switchSourceHeader", params, function(err, result)
+		if err then
+			vim.notify("clangd: " .. err.message, vim.log.levels.ERROR)
+			return
+		end
+		if not result then
+			vim.notify("No corresponding header/source file found")
+			return
+		end
+		vim.cmd("edit " .. vim.uri_to_fname(result))
+	end)
+end
+vim.api.nvim_create_user_command("ClangdSwitchSourceHeader", _G.ClangdSwitchSourceHeader, {})
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "c", "cpp", "objc", "objcpp", "h", "hpp" },
 	callback = function(args)
@@ -68,11 +86,18 @@ vim.api.nvim_create_autocmd("FileType", {
 			"<cmd>ClangdSwitchSourceHeader<CR>",
 			{ noremap = true, silent = true }
 		)
-		km.set("n", "gd", vim.lsp.buf.definition)
-		km.set("n", "gy", vim.lsp.buf.type_definition)
-		km.set("n", "gs", vim.lsp.buf.workspace_symbol)
 	end,
 })
+
+
+
+
+-----------------------------
+--  Keymaps for LSP files  --
+-----------------------------
+km.set("n", "grn", vim.lsp.buf.rename, { desc = "Rename symbol with LSP" })
+
+
 
 ---------------------------
 --  Keymaps for harpoon  --
@@ -272,7 +297,7 @@ km.set("n", "<leader>nvim", ":tabnew $MYVIMRC<CR>", { noremap = true, silent = t
 km.set(
 	"n",
 	"<leader>ndebug",
-	":tabnew " .. home .. "/.config/nvim/lua/config/debugger.lua<CR>",
+	":tabnew " .. vim.fn.stdpath("config") .. "/lua/config/debugger.lua<CR>",
 	{ desc = "Open config debugger" }
 )
 
@@ -311,21 +336,16 @@ end, { desc = "Toggle mouse support" })
 km.set("n", "<leader>pl", function()
 	vim.lsp.buf.format({ async = true })
 end)
+
 km.set("n", "<leader>pf", function()
 	require("conform").format({ async = true })
 end, { desc = "Format file" })
-km.set("v", "<leader>pg", function()
-	local start_line = vim.fn.getpos("'<")[2]
-	local end_line = vim.fn.getpos("'>")[2]
 
-	require("conform").format({
-		lsp_fallback = false,
-		range = {
-			start = { start_line, 0 },
-			["end"] = { end_line, 0 },
-		},
-	})
-end, { desc = "Format visual selection with clang-format" })
+km.set("v", "<leader>ps", function()
+    require("conform").format({
+        async = true, lsp_fallback = true
+    })
+end, { noremap = true, silent = true, desc = "Format selected text in virtual mode" } )
 
 ------------------------------
 --  Keymaps for Toggleterm  --
@@ -409,9 +429,6 @@ km.set("n", "<leader>gg", function()
 	print(vim.inspect(dict))
 end, { desc = "Show gitsigns status dict" })
 
----------------------------------
---  Keymaps for vim-illuminate --
----------------------------------
 km.set("n", "]c", function()
 	if vim.wo.diff then
 		return "]c"

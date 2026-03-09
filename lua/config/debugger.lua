@@ -1,4 +1,5 @@
 local home = os.getenv("HOME") or os.getenv("USERPROFILE")
+local python = require("common.python")
 
 require("dapui").setup({
 	layouts = {
@@ -307,17 +308,7 @@ dap.configurations.cpp = {
 dap.configurations.c = dap.configurations.cpp
 
 -- Configure dap for Python
-local uname = vim.loop.os_uname() -- Get the system information
-local is_windows = uname and uname.sysname == "Windows_NT" -- Check if the system is Windows
-local pythonBinPath
-if is_windows then
-	print("Configuring python debugger for Windows")
-	pythonBinPath = home .. "/.virtualenvs/debugpy/Scripts/python.exe"
-else
-	print("Configuring python debugger for Windows")
-	pythonBinPath = home .. "/.virtualenvs/debugpy/bin/python"
-end
-require("dap-python").setup(pythonBinPath, {
+require("dap-python").setup(python.get_python_path(), {
 	rocks = {
 		enabled = true,
 	},
