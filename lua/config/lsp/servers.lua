@@ -17,17 +17,25 @@ local function config_server(name, conf)
 				},
 			},
 		}
-    elseif name == "pyright" then
-        settings = {
-            python = {
-                pythonPath = python.get_python_path(),
-            },
-        }
+	elseif name == "pyright" then
+		settings = {
+			python = {
+				pythonPath = python.get_python_path(),
+			},
+		}
+	end
+
+	-- Use vim.fs.find to detect markers
+	local root_dir = vim.fs.find(conf.root_markers or {}, { upward = true })[1]
+	if root_dir then
+		root_dir = vim.fs.dirname(root_dir)
+	else
+		root_dir = vim.loop.cwd() -- fallback to current directory
 	end
 
 	vim.lsp.config(name, {
 		cmd = conf.cmd,
-        root_dir = vim.fs.root(0, conf.root_markers),
+		root_dir = root_dir,
 		on_attach = common.on_attach,
 		capabilities = common.capabilities,
 		settings = settings,
@@ -36,8 +44,8 @@ end
 
 local servers = {
 	lua_ls = {
-		cmd = { 'lua-language-server' },
-		root_markers = { '.git', 'init.lua' },
+		cmd = { "lua-language-server" },
+		root_markers = { ".git", "init.lua" },
 	},
 	pyright = {
 		cmd = { "pyright-langserver", "--stdio" },
@@ -63,5 +71,5 @@ local servers = {
 
 for name, config in pairs(servers) do
 	config_server(name, config)
-    vim.lsp.enable(name)
+	vim.lsp.enable(name)
 end
