@@ -1,3 +1,16 @@
+-- toggleterm
+require("toggleterm").setup({
+    direction = 'vertical',
+    size = function(term)
+        if term.direction == "vertical" then
+            return vim.o.columns * 0.3 -- 40% of the screen width
+        elseif term.direction == "horizontal" then
+            return 20 -- 20 rows for horizontal
+        end
+    end,
+})
+
+
 -- configure harpoon
 local harpoon = require("harpoon")
 harpoon:setup()

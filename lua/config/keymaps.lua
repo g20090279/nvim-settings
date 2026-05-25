@@ -1,5 +1,4 @@
 local km = vim.keymap
--- local home = os.getenv("HOME") or os.getenv("USERPROFILE")
 local home = vim.loop.os_homedir()
 
 -----------------------------------------------------------
@@ -92,10 +91,65 @@ vim.api.nvim_create_autocmd("FileType", {
 
 
 
+----------------------------
+--  Keymaps for gitsigns  --
+----------------------------
+local gs = require("gitsigns")
+
+km.set("n", "<leader>gn", gs.next_hunk, { desc = "Next hunk" })
+km.set("n", "<leader>gp", gs.prev_hunk, { desc = "Previous hunk" })
+km.set("n", "<leader>gr", gs.reset_hunk, { desc = "Reset hunk" })
+km.set("n", "<leader>gR", gs.reset_buffer, { desc = "Reset buffer" })
+km.set("n", "<leader>gs", gs.stage_hunk, { desc = "Stage hunk" })
+km.set("n", "<leader>gu", gs.undo_stage_hunk, { desc = "Undo stage hunk" })
+km.set("n", "<leader>gS", gs.stage_buffer, { desc = "Stage buffer" })
+km.set("n", "<leader>gp", gs.preview_hunk, { desc = "Preview hunk" })
+km.set("n", "<leader>gb", function()
+	gs.blame_line({ full = true })
+end, { desc = "Blame current line" })
+km.set("n", "<leader>gt", gs.toggle_current_line_blame, { desc = "Toggle inline blame" })
+km.set("n", "<leader>gd", gs.diffthis, { desc = "Diff this" })
+km.set("n", "<leader>gD", function()
+	gs.diffthis("~")
+end, { desc = "Diff against HEAD" })
+km.set("n", "<leader>gg", function()
+	local dict = vim.b.gitsigns_status_dict
+	if not dict then
+		print("No gitsigns info available")
+		return
+	end
+	print(vim.inspect(dict))
+end, { desc = "Show gitsigns status dict" })
+
+km.set("n", "]c", function()
+	if vim.wo.diff then
+		return "]c"
+	end
+	vim.schedule(gs.next_hunk)
+end, { desc = "Next Git hunk" })
+
+km.set("n", "[c", function()
+	if vim.wo.diff then
+		return "[c"
+	end
+	vim.schedule(gs.prev_hunk)
+end, { desc = "Prev Git hunk" })
+
+
+
+----------------------------
+--  Keymaps for diffview  --
+----------------------------
+km.set("n", "<leader>gmr", ":DiffviewOpen origin/main...HEAD<CR>", { desc = "Reivew Merge Request" })
+
+
+
+
+
 -----------------------------
 --  Keymaps for LSP files  --
 -----------------------------
-km.set("n", "grn", vim.lsp.buf.rename, { desc = "Rename symbol with LSP" })
+-- km.set("n", "grn", vim.lsp.buf.rename, { desc = "Rename symbol with LSP" })
 
 
 
@@ -347,6 +401,25 @@ km.set("v", "<leader>ps", function()
     })
 end, { noremap = true, silent = true, desc = "Format selected text in virtual mode" } )
 
+
+
+
+
+--------------------------------
+--  Keymaps for auto-session  --
+--------------------------------
+km.set("n", "<leader>ss", "<cmd>AutoSession save<CR>", { desc = "Save session" })
+km.set("n", "<leader>sr", "<cmd>AutoSession restore<CR>", { desc = "Restore session" })
+km.set("n", "<leader>sd", "<cmd>AutoSession delete<CR>", { desc = "Delete session" })
+km.set("n", "<leader>sD", "<cmd>AutoSessionRemoveAll<CR>", { desc = "Delete all auto-session sessions", })
+
+-- setup telescope
+require("telescope").load_extension("session-lens")
+km.set("n", "<leader>sl", "<cmd>Telescope session-lens<CR>", { desc = "Search sessions" })
+
+
+
+
 ------------------------------
 --  Keymaps for Toggleterm  --
 ------------------------------
@@ -370,7 +443,7 @@ toggleterm.setup({
 	shell = vim.o.shell,
 	float_opts = {
 		border = "curved",
-		winblend = 0,
+		winblend = 3,
 		highlights = {
 			border = "Normal",
 			background = "Normal",
@@ -398,50 +471,6 @@ km.set("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", { desc = "Float
 --  Keymaps for undo tree  --
 -----------------------------
 km.set("n", "<leader>u", vim.cmd.UndotreeToggle)
-
-----------------------------
---  Keymaps for gitsigns  --
-----------------------------
-local gs = require("gitsigns")
-
-km.set("n", "<leader>gn", gs.next_hunk, { desc = "Next hunk" })
-km.set("n", "<leader>gp", gs.prev_hunk, { desc = "Previous hunk" })
-km.set("n", "<leader>gr", gs.reset_hunk, { desc = "Reset hunk" })
-km.set("n", "<leader>gR", gs.reset_buffer, { desc = "Reset buffer" })
-km.set("n", "<leader>gs", gs.stage_hunk, { desc = "Stage hunk" })
-km.set("n", "<leader>gu", gs.undo_stage_hunk, { desc = "Undo stage hunk" })
-km.set("n", "<leader>gS", gs.stage_buffer, { desc = "Stage buffer" })
-km.set("n", "<leader>gp", gs.preview_hunk, { desc = "Preview hunk" })
-km.set("n", "<leader>gb", function()
-	gs.blame_line({ full = true })
-end, { desc = "Blame current line" })
-km.set("n", "<leader>gt", gs.toggle_current_line_blame, { desc = "Toggle inline blame" })
-km.set("n", "<leader>gd", gs.diffthis, { desc = "Diff this" })
-km.set("n", "<leader>gD", function()
-	gs.diffthis("~")
-end, { desc = "Diff against HEAD" })
-km.set("n", "<leader>gg", function()
-	local dict = vim.b.gitsigns_status_dict
-	if not dict then
-		print("No gitsigns info available")
-		return
-	end
-	print(vim.inspect(dict))
-end, { desc = "Show gitsigns status dict" })
-
-km.set("n", "]c", function()
-	if vim.wo.diff then
-		return "]c"
-	end
-	vim.schedule(gs.next_hunk)
-end, { desc = "Next Git hunk" })
-
-km.set("n", "[c", function()
-	if vim.wo.diff then
-		return "[c"
-	end
-	vim.schedule(gs.prev_hunk)
-end, { desc = "Prev Git hunk" })
 
 ---------------------------------
 --  Keymaps for vim-illuminate --

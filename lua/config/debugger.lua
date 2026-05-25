@@ -1,4 +1,3 @@
--- local home = os.getenv("HOME") or os.getenv("USERPROFILE")
 local home = vim.loop.os_homedir()
 local python = require("common.python")
 
@@ -6,15 +5,18 @@ require("dapui").setup({
 	layouts = {
 		{
 			elements = {
-				{ id = "scopes", size = 1 },
+				{ id = "breakpoints", size = 0.1 },
+				{ id = "watches", size = 0.1 },
+				{ id = "stacks", size = 0.2 },
+				{ id = "scopes", size = 0.6 },
 			},
 			size = 40, -- width of Left panel
 			position = "left",
 		},
 		{
 			elements = {
-				{ id = "repl", size = 1 },
-				-- { id = "console", size = 0.5 },
+				{ id = "repl", size = 0.5 },
+				{ id = "console", size = 0.5 },
 			},
 			size = 10, -- hight of bottome panel
 			position = "bottom",
@@ -91,7 +93,7 @@ dap.adapters.gdb = {
 
 dap.adapters.cppdbg = {
 	type = "executable",
-	command = home .. "/.vscode-server/extensions/ms-vscode.cpptools-1.28.3-linux-x64/debugAdapters/bin/OpenDebugAD7",
+    command = home .. '/opt/cpptools/bin/extension/debugAdapters/bin/OpenDebugAD7',  -- change to local OpenDebugAD7, which is independent of vscode
 	id = "cppdbg",
 }
 

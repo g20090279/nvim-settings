@@ -40,3 +40,13 @@ function _G.set_terminal_keymaps()
 end
 
 vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
+
+
+-- setup startify
+vim.g.startify_lists = {
+    { type = "sessions",  header = {"   Sessions"}       },
+    { type = "files",     header = {"   Recent files"}   },
+    { type = "dir",       header = {"   Current dir"}    },
+}
+vim.g.startify_session_dir = vim.fn.stdpath("data") .. "/sessions"
+vim.o.sessionoptions = "buffers,curdir,tabpages,winsize,help,globals,skiprtp,folds"

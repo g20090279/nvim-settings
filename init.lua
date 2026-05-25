@@ -8,10 +8,17 @@ vim.api.nvim_create_user_command("CdRoot", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command("AutoSessionRemoveAll", function()
+    local session_dir = vim.fn.stdpath("data") .. "/sessions/"
+    vim.fn.delete(session_dir, "rf")
+    vim.notify("All auto-session sessions deleted!", vim.log.levels.INFO)
+end, {})
+
 require("config.options")
 require("config.lazy")
 require("config.theme")
 require("config.lsp.servers")
+require("config.lsp.mason")
 require("config.cmp")
 require("config.file-explorer")
 require("config.statusline")
