@@ -28,3 +28,10 @@ require("config.search")
 require("config.utils")
 require("config.keymaps")
 require("config.docutools")
+
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "<filetype>" },
+	callback = function()
+		vim.treesitter.start()
+	end,
+})

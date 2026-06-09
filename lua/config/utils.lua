@@ -16,7 +16,6 @@ local harpoon = require("harpoon")
 harpoon:setup()
 
 -- configure conform
-local python = require("common.python")
 require("conform").setup({
 	formatters_by_ft = {
 		lua = { "stylua" },

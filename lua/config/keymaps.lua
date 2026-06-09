@@ -1,6 +1,49 @@
 local km = vim.keymap
 local home = vim.loop.os_homedir()
 
+-- Define your theme rotation list with names and emojis
+local my_themes = {
+	{ name = "catppuccin-mocha", emoji = "☕" },
+	{ name = "tokyonight-storm", emoji = "⛈️" }, -- 'tokyonight' usually defaults to storm, but specifying is safer
+	{ name = "tokyonight-day", emoji = "☀️" },
+}
+
+local function cycle_themes()
+	-- Get the current active colorscheme name from Neovim's state
+	local current_theme = vim.g.colors_name or ""
+	local next_index = 1
+
+	-- Find our position in the rotation list
+	for i, theme in ipairs(my_themes) do
+		if current_theme == theme.name then
+			-- Target the next index, wrap around to 1 if we hit the end
+			next_index = (i % #my_themes) + 1
+			break
+		end
+	end
+
+	-- Select the next theme object
+	local next_theme = my_themes[next_index]
+
+	-- Safely apply the new colorscheme using native Neovim commands
+	local status, _ = pcall(vim.cmd.colorscheme, next_theme.name)
+
+	if status then
+		-- Format the name nicely for the notification (e.g., "tokyonight-day" -> "Tokyonight-day")
+		local formatted_name = next_theme.name:gsub("^%l", string.upper)
+
+		-- Echo a beautiful clean text notification in the command line space
+		vim.api.nvim_echo({
+			{ " Theme ", "Normal" },
+			{ next_theme.emoji .. " " .. formatted_name .. " ", "Identifier" },
+			{ "activated successfully!", "Comment" },
+		}, false, {})
+	else
+		-- Fallback message if the theme plugin isn't installed
+		print("Error: Colorscheme '" .. next_theme.name .. "' could not be loaded.")
+	end
+end
+
 -----------------------------------------------------------
 --  Keymaps for copying file name and path to clipboard  --
 -----------------------------------------------------------
@@ -370,6 +413,11 @@ km.set("n", "<leader>nm", function()
 		print("Mouse: Disabled!")
 	end
 end, { desc = "Toggle mouse support" })
+
+-- Keymaps for switch colorscheme
+-- Bind the function to a keymap
+-- This maps it to '<Leader>tc' (Theme Cycle). Change to whatever you prefer!
+km.set("n", "<Leader>nc", cycle_themes, { desc = "Cycle UI themes", silent = true })
 
 ------------------------------------
 ---  Keymaps for code prettifier  --
