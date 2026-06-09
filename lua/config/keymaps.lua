@@ -55,8 +55,6 @@ km.set("n", "<leader>fdv", "<cmd>FzfLua dap_variables<CR>", { desc = "Fuzzy find
 km.set("n", "<leader>fdb", "<cmd>FzfLua dap_breakpoints<CR>", { desc = "Fuzzy find breakpoints in DAP" })
 km.set("n", "<leader>fdc", "<cmd>FzfLua dap_commands<CR>", { desc = "Fuzzy find commands in DAP" })
 
-
-
 -----------------------------------------
 --  Keymaps for .c/.cpp/.h/.hpp files  --
 -----------------------------------------
@@ -87,9 +85,6 @@ vim.api.nvim_create_autocmd("FileType", {
 		)
 	end,
 })
-
-
-
 
 ----------------------------
 --  Keymaps for gitsigns  --
@@ -135,23 +130,15 @@ km.set("n", "[c", function()
 	vim.schedule(gs.prev_hunk)
 end, { desc = "Prev Git hunk" })
 
-
-
 ----------------------------
 --  Keymaps for diffview  --
 ----------------------------
 km.set("n", "<leader>gmr", ":DiffviewOpen origin/main...HEAD<CR>", { desc = "Reivew Merge Request" })
 
-
-
-
-
 -----------------------------
 --  Keymaps for LSP files  --
 -----------------------------
 -- km.set("n", "grn", vim.lsp.buf.rename, { desc = "Rename symbol with LSP" })
-
-
 
 ---------------------------
 --  Keymaps for harpoon  --
@@ -396,14 +383,11 @@ km.set("n", "<leader>pf", function()
 end, { desc = "Format file" })
 
 km.set("v", "<leader>ps", function()
-    require("conform").format({
-        async = true, lsp_fallback = true
-    })
-end, { noremap = true, silent = true, desc = "Format selected text in virtual mode" } )
-
-
-
-
+	require("conform").format({
+		async = true,
+		lsp_fallback = true,
+	})
+end, { noremap = true, silent = true, desc = "Format selected text in virtual mode" })
 
 --------------------------------
 --  Keymaps for auto-session  --
@@ -411,14 +395,31 @@ end, { noremap = true, silent = true, desc = "Format selected text in virtual mo
 km.set("n", "<leader>ss", "<cmd>AutoSession save<CR>", { desc = "Save session" })
 km.set("n", "<leader>sr", "<cmd>AutoSession restore<CR>", { desc = "Restore session" })
 km.set("n", "<leader>sd", "<cmd>AutoSession delete<CR>", { desc = "Delete session" })
-km.set("n", "<leader>sD", "<cmd>AutoSessionRemoveAll<CR>", { desc = "Delete all auto-session sessions", })
+km.set("n", "<leader>sD", "<cmd>AutoSessionRemoveAll<CR>", { desc = "Delete all auto-session sessions" })
 
 -- setup telescope
 require("telescope").load_extension("session-lens")
 km.set("n", "<leader>sl", "<cmd>Telescope session-lens<CR>", { desc = "Search sessions" })
 
+------------------------------
+--  Keymaps for Snippet  --
+------------------------------
+local ls = require("luasnip")
 
+km.set({ "i" }, "<C-K>", function() ls.expand() end, { silent = true })
+km.set({ "i", "s" }, "<C-L>", function() ls.jump(1) end, { silent = true })
+km.set({ "i", "s" }, "<C-J>", function() ls.jump(-1) end, { silent = true })
 
+km.set({ "i", "s" }, "<C-E>", function()
+	if ls.choice_active() then
+		ls.change_choice(1)
+	end
+end, { silent = true })
+km.set("n", "<leader>spu", function()
+	if ls.in_snippet() then
+		ls.unlink_current()
+	end
+end)
 
 ------------------------------
 --  Keymaps for Toggleterm  --

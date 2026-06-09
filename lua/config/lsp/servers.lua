@@ -23,6 +23,12 @@ local function config_server(name, conf)
 				pythonPath = python.get_python_path(),
 			},
 		}
+    elseif name == "texlab" then
+        settings = {
+            texlab = {
+                bibtexFormatter = "texlab"
+            }
+        }
 	end
 
 	-- Use vim.fs.find to detect markers
@@ -67,6 +73,9 @@ local servers = {
 			".ltex.toml",
 		},
 	},
+    texlab = {
+        cmd = { "texlab" }
+    }
 }
 
 for name, config in pairs(servers) do

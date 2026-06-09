@@ -31,7 +31,6 @@ return {
         dependencies = {
             "rafamadriz/friendly-snippets",
         },
-        --build = "make install_jsregexp"
     },
     {
         "lervag/vimtex",

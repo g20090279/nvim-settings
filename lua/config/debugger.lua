@@ -180,7 +180,7 @@ dap.configurations.cpp = {
 			},
 			-- {
 			--     description = 'Load Additional Setting',
-			--     text = 'source ${env:HOME}/nfs/home/zekai.liang/opt/runNrsim/printForAsip/pyprint_mrc_normHSqr.py',
+			--     text = 'source ${env:HOME}/opt/runNrsim/printForAsip/pyprint_mrc_normHSqr.py',
 			--     ignoreFailures = true
 			-- },
 		},
@@ -361,8 +361,6 @@ require("dap").configurations.python = {
 		program = "${file}",
 		args = { "-n" }, -- ← Your script's arguments
 		console = "integratedTerminal", -- or "externalTerminal" if needed
-		pythonPath = function()
-			return pythonBinPath
-		end,
+		pythonPath = python.get_python_path(),
 	},
 }
