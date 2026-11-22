@@ -1,4 +1,3 @@
-local home = vim.loop.os_homedir()
 local python = require("common.python")
 
 require("dapui").setup({
@@ -73,27 +72,23 @@ local dap = require("dap")
 
 local function get_project_root()
 	local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-	if git_root and vim.fn.isdirectory(git_root) == 1 then
+	if vim.v.shell_error == 0 and git_root and vim.fn.isdirectory(git_root) == 1 then
 		return git_root
 	else
 		return vim.fn.expand("%:p:h") -- directory of current file
 	end
 end
 
-local function get_current_file_dir()
-	return vim.fn.expand("%:p:h")
-end
-
 -- Configure dap for C/C++/Rust
 dap.adapters.gdb = {
 	type = "executable",
-	command = home .. "/.local/gdb/bin/gdb",
+	command = "gdb",
 	args = { "--interpreter=dap" },
 }
 
 dap.adapters.cppdbg = {
 	type = "executable",
-    command = home .. '/opt/cpptools/bin/extension/debugAdapters/bin/OpenDebugAD7',  -- change to local OpenDebugAD7, which is independent of vscode
+	command = "OpenDebugAD7",
 	id = "cppdbg",
 }
 
@@ -120,180 +115,10 @@ dap.adapters.codelldb = {
 
 dap.configurations.cpp = {
 	{
-		name = "Debug NRSim",
-		type = "cppdbg",
-		-- type = 'codelldb',  -- support more features, such as hit-count breakpoint, ensure to install codelldb, for example, by using Mason
-		request = "launch",
-		cwd = get_project_root(),
-		program = "nrsim_dbg",
-		args = { "/path/to/autorun" },
-		exterminalConsole = true, -- suppress the warning gdb failed to set controlling terminal
-		setupCommands = {
-			{
-				description = "Enable pretty-printing for gdb",
-				text = "-enable-pretty-printing",
-				ignoreFailures = true,
-			},
-			{
-				description = "Enable Eigen Library Pretty Printer",
-				text = "python import sys; sys.path.insert(0, '${env:HOME}/opt/eigen-3.4.0/debug/gdb')",
-			},
-			{
-				description = "Load Eigen Pretty Printer",
-				text = "source ${env:HOME}/opt/eigen-3.4.0/debug/gdb/eigen_printers.py",
-				ignoreFailures = true,
-			},
-			{
-				description = "Add VBit Pretty Printer",
-				text = "source ${env:HOME}/opt/ASIP-Pretty-Printer/trv32p5x_chess_pretty_printing.py",
-				ignoreFailures = true,
-			},
-			{
-				description = "Set GDB log file",
-				text = "-gdb-set logging file gdb.log." .. os.date("%Y%m%d%H%M%S") .. ".log",
-				ignoreFailures = true,
-			},
-			{
-				description = "Overwrite log file",
-				text = "set logging overwrite on",
-				ignoreFailures = true,
-			},
-			{
-				description = "Disable pagination",
-				text = "set pagination off",
-				ignoreFailures = true,
-			},
-			{
-				description = "Show all array elements",
-				text = "set print elements 0",
-				ignoreFailures = true,
-			},
-			{
-				description = "Trace commands",
-				text = "set trace-commands on",
-				ignoreFailures = true,
-			},
-			{
-				description = "Print current working directory",
-				text = "pwd",
-				ignoreFailures = true,
-			},
-			-- {
-			--     description = 'Load Additional Setting',
-			--     text = 'source ${env:HOME}/opt/runNrsim/printForAsip/pyprint_mrc_normHSqr.py',
-			--     ignoreFailures = true
-			-- },
-		},
-	},
-	{
-		name = "Debug fw-top",
-		type = "cppdbg",
-		request = "launch",
-		cwd = get_project_root(),
-		program = function()
-			return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-		end,
-		setupCommands = {
-			{
-				description = "Enable pretty-printing for gdb",
-				text = "-enable-pretty-printing",
-				ignoreFailures = true,
-			},
-			{
-				description = "Set GDB log file",
-				text = "-gdb-set logging file gdb.log." .. os.date("%Y%m%d%H%M%S") .. ".log",
-				ignoreFailures = true,
-			},
-			{
-				description = "Overwrite log file",
-				text = "set logging overwrite on",
-				ignoreFailures = true,
-			},
-			{
-				description = "Disable pagination",
-				text = "set pagination off",
-				ignoreFailures = true,
-			},
-			{
-				description = "Show all array elements",
-				text = "set print elements 0",
-				ignoreFailures = true,
-			},
-			{
-				description = "Trace commands",
-				text = "set trace-commands on",
-				ignoreFailures = true,
-			},
-            {
-                description = "Print current working directory",
-                text = "pwd",
-                ignoreFailures = true
-            },
-		},
-		environment = {
-			{
-				name = "DSP_TEST_VECTOR_DIR",
-				value = home .. "/workspace/dsp-test-vectors",
-			},
-		},
-	},
-	{
-		name = "Debug asip",
-		type = "cppdbg",
-		request = "launch",
-		cwd = get_project_root(),
-		-- program = function()
-		--     return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-		-- end,
-		program = "/path/to/binary",
-		setupCommands = {
-			{
-				description = "Enable pretty-printing for gdb",
-				text = "-enable-pretty-printing",
-				ignoreFailures = true,
-			},
-			{
-				description = "Add VBit Pretty Printer",
-				text = "source ${env:HOME}/path/to/pretty-printer",
-				ignoreFailures = true,
-			},
-			{
-				description = "Load local .gdbinit",
-				text = "source ${env:HOME}/.gdbinit",
-				ignoreFailures = true,
-			},
-			{
-				description = "Set GDB log file",
-				text = "-gdb-set logging file gdb.log." .. os.date("%Y%m%d%H%M%S") .. ".log",
-				ignoreFailures = true,
-			},
-			{
-				description = "Overwrite log file",
-				text = "set logging overwrite on",
-				ignoreFailures = true,
-			},
-			{
-				description = "Disable pagination",
-				text = "set pagination off",
-				ignoreFailures = true,
-			},
-			{
-				description = "Show all array elements",
-				text = "set print elements 0",
-				ignoreFailures = true,
-			},
-			{
-				description = "Trace commands",
-				text = "set trace-commands on",
-				ignoreFailures = true,
-			},
-		},
-	},
-	{
 		name = "Launch GDB",
 		type = "gdb",
 		request = "launch",
-		cwd = get_project_root(),
+		cwd = get_project_root, -- evaluated by nvim-dap when the session starts
 		program = function()
 			return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
 		end,
@@ -308,9 +133,6 @@ dap.configurations.cpp = {
 		end,
 		cwd = "${workspaceFolder}",
 		stopAtBeginningOfMainSubprogram = false,
-	},
-	{
-		name = "Launch",
 	},
 }
 dap.configurations.c = dap.configurations.cpp
@@ -346,21 +168,23 @@ require("dap").configurations.python = {
 		name = "Launch debugpy",
 		type = "python",
 		request = "launch",
-		cwd = get_current_file_dir(),
+		cwd = "${fileDirname}",
 		program = "${file}",
 		console = "integratedTerminal", -- or "externalTerminal" if needed
-		pythonPath = function()
-			return pythonBinPath
-		end,
 	},
 	{
 		name = "Debug Autorun",
 		type = "python",
 		request = "launch",
-		cwd = get_current_file_dir(),
+		cwd = "${fileDirname}",
 		program = "${file}",
 		args = { "-n" }, -- ← Your script's arguments
 		console = "integratedTerminal", -- or "externalTerminal" if needed
-		pythonPath = python.get_python_path(),
 	},
 }
+
+-- Machine-specific debugger settings are kept out of version control.
+local local_config = vim.fn.stdpath("config") .. "/lua/config/debugger_local.lua"
+if vim.fn.filereadable(local_config) == 1 then
+	dofile(local_config)
+end

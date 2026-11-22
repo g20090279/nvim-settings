@@ -1,7 +1,7 @@
 vim.api.nvim_create_user_command("CdRoot", function()
     local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-    if git_root and git_root ~= "" then
-        vim.cmd("cd " .. git_root)
+    if vim.v.shell_error == 0 and git_root and git_root ~= "" then
+        vim.cmd.cd({ args = { git_root } })
         print("Changed dir to " .. git_root)
     else
         print("Not inside a Git repo")
@@ -28,10 +28,3 @@ require("config.search")
 require("config.utils")
 require("config.keymaps")
 require("config.docutools")
-
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "<filetype>" },
-	callback = function()
-		vim.treesitter.start()
-	end,
-})

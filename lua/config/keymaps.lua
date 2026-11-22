@@ -55,7 +55,7 @@ km.set("n", "<leader>cF", function()
 	vim.fn.setreg("+", vim.fn.expand("%:p"))
 	print("Copied absolute path file to clipboard: " .. vim.fn.expand("%:p"))
 end, { desc = "Copy absolute path file to clipboard" })
-km.set("n", "<leader>cfn", function()
+km.set("n", "<leader>cn", function()
 	vim.fn.setreg("+", vim.fn.expand("%:t"))
 	print("Copied only file name to clipboard: " .. vim.fn.expand("%:t"))
 end, { desc = "Copy only file name to clipboard" })
@@ -80,19 +80,20 @@ km.set("n", "<leader>ef", ":NERDTreeFind<CR>", { noremap = true, silent = true, 
 km.set("n", "<leader>ff", "<cmd>FzfLua files<CR>", { desc = "Fuzzy find files" })
 km.set("n", "<leader>fg", "<cmd>FzfLua live_grep_native<CR>", { desc = "Fuzzy find text" })
 km.set("n", "<leader>fb", "<cmd>FzfLua buffers<CR>", { desc = "Fuzzy find buffers" })
+km.set("n", "<leader>fB", "<cmd>FzfLua lines<CR>", { desc = "Fuzzy find lines in the current buffer" })
 km.set("n", "<leader>fk", "<cmd>FzfLua keymaps<CR>", { desc = "Fuzzy find keymaps" })
 km.set("n", "<leader>fls", "<cmd>FzfLua lsp_document_symbols<CR>", { desc = "Fuzzy find document symbols from LSP" })
 km.set("n", "<leader>flS", "<cmd>FzfLua lsp_workspace_symbols<CR>", { desc = "Fuzzy find worksapce symbols from LSP" })
 km.set("n", "<leader>fli", "<cmd>FzfLua lsp_implementations<CR>", { desc = "Fuzzy find implementations from LSP" })
 km.set("n", "<leader>flr", "<cmd>FzfLua lsp_references<CR>", { desc = "Fuzzy find references from LSP" })
-km.set("n", "<leader>fgf", "<cmd>FzfLua git_files<CR>", { desc = "Fuzzy find git list files" })
-km.set("n", "<leader>fgd", "<cmd>FzfLua git_diff<CR>", { desc = "Fuzzy find git diff {ref}" })
-km.set("n", "<leader>fgc", "<cmd>FzfLua git_commits<CR>", { desc = "Fuzzy find git commit log of the project" })
-km.set("n", "<leader>fgv", "<cmd>FzfLua git_bcommits<CR>", { desc = "Fuzzy find git commit log of the buffer" })
-km.set("n", "<leader>fgb", "<cmd>FzfLua git_blame<CR>", { desc = "Fuzzy find git blame of the buffer" })
-km.set("n", "<leader>fgs", "<cmd>FzfLua git_stash<CR>", { desc = "Fuzzy find git stash" })
-km.set("n", "<leader>fgt", "<cmd>FzfLua git_tags<CR>", { desc = "Fuzzy find git tags" })
-km.set("n", "<leader>fga", "<cmd>FzfLua git_branches<CR>", { desc = "Fuzzy find git branches" })
+km.set("n", "<leader>fGf", "<cmd>FzfLua git_files<CR>", { desc = "Fuzzy find git list files" })
+km.set("n", "<leader>fGd", "<cmd>FzfLua git_diff<CR>", { desc = "Fuzzy find git diff {ref}" })
+km.set("n", "<leader>fGc", "<cmd>FzfLua git_commits<CR>", { desc = "Fuzzy find git commit log of the project" })
+km.set("n", "<leader>fGv", "<cmd>FzfLua git_bcommits<CR>", { desc = "Fuzzy find git commit log of the buffer" })
+km.set("n", "<leader>fGb", "<cmd>FzfLua git_blame<CR>", { desc = "Fuzzy find git blame of the buffer" })
+km.set("n", "<leader>fGs", "<cmd>FzfLua git_stash<CR>", { desc = "Fuzzy find git stash" })
+km.set("n", "<leader>fGt", "<cmd>FzfLua git_tags<CR>", { desc = "Fuzzy find git tags" })
+km.set("n", "<leader>fGa", "<cmd>FzfLua git_branches<CR>", { desc = "Fuzzy find git branches" })
 km.set("n", "<leader>fdf", "<cmd>FzfLua dap_frames<CR>", { desc = "Fuzzy find frames in DAP" })
 km.set("n", "<leader>fdv", "<cmd>FzfLua dap_variables<CR>", { desc = "Fuzzy find variables in DAP" })
 km.set("n", "<leader>fdb", "<cmd>FzfLua dap_breakpoints<CR>", { desc = "Fuzzy find breakpoints in DAP" })
@@ -112,7 +113,7 @@ function _G.ClangdSwitchSourceHeader()
 			vim.notify("No corresponding header/source file found")
 			return
 		end
-		vim.cmd("edit " .. vim.uri_to_fname(result))
+		vim.cmd.edit({ args = { vim.uri_to_fname(result) } })
 	end)
 end
 vim.api.nvim_create_user_command("ClangdSwitchSourceHeader", _G.ClangdSwitchSourceHeader, {})
@@ -135,7 +136,7 @@ vim.api.nvim_create_autocmd("FileType", {
 local gs = require("gitsigns")
 
 km.set("n", "<leader>gn", gs.next_hunk, { desc = "Next hunk" })
-km.set("n", "<leader>gp", gs.prev_hunk, { desc = "Previous hunk" })
+km.set("n", "<leader>gN", gs.prev_hunk, { desc = "Previous hunk" })
 km.set("n", "<leader>gr", gs.reset_hunk, { desc = "Reset hunk" })
 km.set("n", "<leader>gR", gs.reset_buffer, { desc = "Reset buffer" })
 km.set("n", "<leader>gs", gs.stage_hunk, { desc = "Stage hunk" })
@@ -164,14 +165,14 @@ km.set("n", "]c", function()
 		return "]c"
 	end
 	vim.schedule(gs.next_hunk)
-end, { desc = "Next Git hunk" })
+end, { expr = true, desc = "Next Git hunk" })
 
 km.set("n", "[c", function()
 	if vim.wo.diff then
 		return "[c"
 	end
 	vim.schedule(gs.prev_hunk)
-end, { desc = "Prev Git hunk" })
+end, { expr = true, desc = "Prev Git hunk" })
 
 ----------------------------
 --  Keymaps for diffview  --
@@ -188,7 +189,6 @@ km.set("n", "<leader>gmr", ":DiffviewOpen origin/main...HEAD<CR>", { desc = "Rei
 ---------------------------
 local harpoon = require("harpoon")
 
-harpoon:setup()
 km.set("n", "<leader>ha", function()
 	harpoon:list():add()
 end, { desc = "Add file to Harpoon" })
@@ -209,15 +209,14 @@ km.set("n", "<leader>h4", function()
 	harpoon:list():select(4)
 end, { desc = "Harpoon jump 4" })
 
-km.set("n", "<leader>hp", function()
+km.set("n", "<leader>hn", function()
 	harpoon:list():next()
 end, { desc = "Harpoon next file" })
-km.set("n", "<leader>hn", function()
+km.set("n", "<leader>hp", function()
 	harpoon:list():prev()
 end, { desc = "Harpoon previous file" })
 
-vim.keymap.set("n", "<leader>hd1", function()
-	local harpoon = require("harpoon")
+vim.keymap.set("n", "<leader>hdc", function()
 	harpoon:list():remove()
 end, { desc = "Harpoon: remove current file" })
 
@@ -274,14 +273,14 @@ end
 km.set("n", "<Leader>db", function()
 	dap.toggle_breakpoint()
 end, { noremap = true, silent = true })
-km.set("n", "<Leader>dbc", function()
+km.set("n", "<Leader>dBc", function()
 	dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
 end, { noremap = true, silent = true })
-km.set("n", "<leader>dbh", function()
+km.set("n", "<leader>dBh", function()
 	local hitCon = vim.fn.input("Break on hit (e.g. '>= 10', '==3', '% 5'): ")
 	dap.set_breakpoint(nil, hitCon, nil)
 end)
-km.set("n", "<leader>dba", function()
+km.set("n", "<leader>dBa", function()
 	local con = vim.fn.input("Breakpoint condition: ")
 	local hitCon = vim.fn.input("Break on hit (e.g. '>= 10', '==3', '% 5'): ")
 	dap.set_breakpoint(con, hitCon, nil)
@@ -362,17 +361,17 @@ end, { desc = "Toggle DAP hover auto evaluation" })
 ---------------------------
 --  NVIM System Keymaps  --
 ---------------------------
-km.set("n", "<leader>ncd", function()
+km.set("n", "<leader>nC", function()
 	local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
 	local target_dir
 
-	if git_root and vim.fn.isdirectory(git_root) == 1 then
+	if vim.v.shell_error == 0 and git_root and vim.fn.isdirectory(git_root) == 1 then
 		target_dir = git_root
 	else
 		target_dir = vim.fn.expand("%:p:h")
 	end
 
-	vim.cmd("cd " .. target_dir)
+	vim.cmd.cd({ args = { target_dir } })
 	print("Working directory changed to: " .. target_dir)
 end, { desc = "Change cwd to Git root or current file directory" })
 
@@ -381,7 +380,9 @@ km.set("n", "<leader>nvim", ":tabnew $MYVIMRC<CR>", { noremap = true, silent = t
 km.set(
 	"n",
 	"<leader>ndebug",
-	":tabnew " .. vim.fn.stdpath("config") .. "/lua/config/debugger.lua<CR>",
+	function()
+		vim.cmd.tabnew({ args = { vim.fn.stdpath("config") .. "/lua/config/debugger.lua" } })
+	end,
 	{ desc = "Open config debugger" }
 )
 
@@ -466,51 +467,13 @@ end, { silent = true })
 km.set("n", "<leader>spu", function()
 	if ls.in_snippet() then
 		ls.unlink_current()
-	end
-end)
+    end
+end, { desc = "Decouple Snippet" })
 
 ------------------------------
 --  Keymaps for Toggleterm  --
 ------------------------------
-local status_ok, toggleterm = pcall(require, "toggleterm")
-if not status_ok then
-	return
-end
-
-toggleterm.setup({
-	size = 20,
-	open_mapping = [[<c-\>]],
-	hide_numbers = true,
-	shade_filetypes = {},
-	shade_terminals = true,
-	shading_factor = 2,
-	start_in_insert = true,
-	insert_mappings = true,
-	persist_size = true,
-	direction = "float",
-	close_on_exit = true,
-	shell = vim.o.shell,
-	float_opts = {
-		border = "curved",
-		winblend = 3,
-		highlights = {
-			border = "Normal",
-			background = "Normal",
-		},
-	},
-})
-
-function _G.set_terminal_keymaps()
-	local opts = { noremap = true }
-	vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
-	vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
-	vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
-	vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
-	vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
-end
-
-vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
-
+-- toggleterm itself is configured in lua/config/utils.lua
 km.set("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
 km.set("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Horizontal terminal" })
 km.set("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Vertical terminal" })

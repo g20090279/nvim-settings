@@ -2,7 +2,7 @@ return {
     {
         "iamcco/markdown-preview.nvim",
         cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-        run = 'cd app && npm install',  -- Make sure to install dependencies
+        build = 'cd app && npm install', -- Install the preview server with lazy.nvim.
         ft = { "markdown" },
     },
     {

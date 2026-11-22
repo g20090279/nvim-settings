@@ -1,5 +1,4 @@
 local common = require("config.lsp.common")
-local python = require("common.python")
 
 local function config_server(name, conf)
 	local settings = nil
@@ -17,12 +16,6 @@ local function config_server(name, conf)
 				},
 			},
 		}
-	elseif name == "pyright" then
-		settings = {
-			python = {
-				pythonPath = python.get_python_path(),
-			},
-		}
     elseif name == "texlab" then
         settings = {
             texlab = {
@@ -31,17 +24,11 @@ local function config_server(name, conf)
         }
 	end
 
-	-- Use vim.fs.find to detect markers
-	local root_dir = vim.fs.find(conf.root_markers or {}, { upward = true })[1]
-	if root_dir then
-		root_dir = vim.fs.dirname(root_dir)
-	else
-		root_dir = vim.loop.cwd() -- fallback to current directory
-	end
-
+	-- root_markers lets Neovim find the project root per buffer (searching upward
+	-- from each opened file); if omitted, nvim-lspconfig's default for the server is used.
 	vim.lsp.config(name, {
 		cmd = conf.cmd,
-		root_dir = root_dir,
+		root_markers = conf.root_markers,
 		on_attach = common.on_attach,
 		capabilities = common.capabilities,
 		settings = settings,

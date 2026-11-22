@@ -9,7 +9,7 @@ return {
 		"folke/which-key.nvim",
 		event = "VeryLazy",
 	},
-	{ "akinsho/toggleterm.nvim", version = "*", config = true },
+	{ "akinsho/toggleterm.nvim", version = "*" }, -- configured in lua/config/utils.lua
 	{
 		"heilgar/bookmarks.nvim",
 		dependencies = {
