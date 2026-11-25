@@ -31,7 +31,7 @@ return {
 					},
 				},
 			})
-			vim.cmd.colorscheme("catppuccin")
+			-- colorscheme is applied in config/theme.lua
 		end,
 	},
 	-- Extra colorschemes for the theme cycler (<leader>nc); loaded on demand by :colorscheme
@@ -40,47 +40,39 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
 		lazy = false,
+		build = ":TSUpdate",
 	},
 	{
 		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
+		event = { "BufReadPost", "BufNewFile" },
 		config = function()
 			require("ibl").setup()
 		end,
 	},
-	{ "MunifTanjim/nui.nvim" },
 	{ "mhinz/vim-startify" },
 	-- {
 	--     "karb94/neoscroll.nvim",
 	--     opts = {},
 	-- },
-	{ "rcarriga/nvim-notify" },
-	{ "RRethy/vim-illuminate" },
+	{
+		"RRethy/vim-illuminate",
+		event = { "BufReadPost", "BufNewFile" },
+		config = function()
+			require("illuminate").configure({
+				providers = {
+					"lsp",
+					"regex",
+				},
+			})
+		end,
+	},
+	-- loaded by the n/N/*/# maps in config/theme.lua
 	{
 		"kevinhwang91/nvim-hlslens",
+		lazy = true,
 		config = function()
 			require("hlslens").setup()
-
-			local kopts = { noremap = true, silent = true }
-
-			vim.api.nvim_set_keymap(
-				"n",
-				"n",
-				[[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
-				kopts
-			)
-			vim.api.nvim_set_keymap(
-				"n",
-				"N",
-				[[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
-				kopts
-			)
-			vim.api.nvim_set_keymap("n", "*", [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
-			vim.api.nvim_set_keymap("n", "#", [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
-			vim.api.nvim_set_keymap("n", "g*", [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
-			vim.api.nvim_set_keymap("n", "g#", [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
-
-			vim.api.nvim_set_keymap("n", "<Leader>l", "<Cmd>noh<CR>", kopts)
 		end,
 	},
 }

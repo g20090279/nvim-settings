@@ -1,5 +1,4 @@
 local km = vim.keymap
-local home = vim.loop.os_homedir()
 
 -- Define your theme rotation list with names and emojis
 local my_themes = {
@@ -133,24 +132,25 @@ vim.api.nvim_create_autocmd("FileType", {
 ----------------------------
 --  Keymaps for gitsigns  --
 ----------------------------
-local gs = require("gitsigns")
+-- gitsigns loads on the first file read, so require it only when a map runs
+local function gs(fn, ...)
+	local args = { ... }
+	return function()
+		require("gitsigns")[fn](unpack(args))
+	end
+end
 
-km.set("n", "<leader>gn", gs.next_hunk, { desc = "Next hunk" })
-km.set("n", "<leader>gN", gs.prev_hunk, { desc = "Previous hunk" })
-km.set("n", "<leader>gr", gs.reset_hunk, { desc = "Reset hunk" })
-km.set("n", "<leader>gR", gs.reset_buffer, { desc = "Reset buffer" })
-km.set("n", "<leader>gs", gs.stage_hunk, { desc = "Stage hunk" })
-km.set("n", "<leader>gu", gs.undo_stage_hunk, { desc = "Undo stage hunk" })
-km.set("n", "<leader>gS", gs.stage_buffer, { desc = "Stage buffer" })
-km.set("n", "<leader>gp", gs.preview_hunk, { desc = "Preview hunk" })
-km.set("n", "<leader>gb", function()
-	gs.blame_line({ full = true })
-end, { desc = "Blame current line" })
-km.set("n", "<leader>gt", gs.toggle_current_line_blame, { desc = "Toggle inline blame" })
-km.set("n", "<leader>gd", gs.diffthis, { desc = "Diff this" })
-km.set("n", "<leader>gD", function()
-	gs.diffthis("~")
-end, { desc = "Diff against HEAD" })
+km.set("n", "<leader>gn", gs("nav_hunk", "next"), { desc = "Next hunk" })
+km.set("n", "<leader>gr", gs("reset_hunk"), { desc = "Reset hunk" })
+km.set("n", "<leader>gR", gs("reset_buffer"), { desc = "Reset buffer" })
+km.set("n", "<leader>gs", gs("stage_hunk"), { desc = "Stage hunk" })
+km.set("n", "<leader>gu", gs("undo_stage_hunk"), { desc = "Undo stage hunk" })
+km.set("n", "<leader>gS", gs("stage_buffer"), { desc = "Stage buffer" })
+km.set("n", "<leader>gp", gs("preview_hunk"), { desc = "Preview hunk" })
+km.set("n", "<leader>gb", gs("blame_line", { full = true }), { desc = "Blame current line" })
+km.set("n", "<leader>gt", gs("toggle_current_line_blame"), { desc = "Toggle inline blame" })
+km.set("n", "<leader>gd", gs("diffthis"), { desc = "Diff this" })
+km.set("n", "<leader>gD", gs("diffthis", "~"), { desc = "Diff against HEAD" })
 km.set("n", "<leader>gg", function()
 	local dict = vim.b.gitsigns_status_dict
 	if not dict then
@@ -160,19 +160,22 @@ km.set("n", "<leader>gg", function()
 	print(vim.inspect(dict))
 end, { desc = "Show gitsigns status dict" })
 
+-- In diff mode (nvim -d, diffview) keep Vim's own ]c / [c
 km.set("n", "]c", function()
 	if vim.wo.diff then
-		return "]c"
+		vim.cmd.normal({ "]c", bang = true })
+	else
+		require("gitsigns").nav_hunk("next")
 	end
-	vim.schedule(gs.next_hunk)
-end, { expr = true, desc = "Next Git hunk" })
+end, { desc = "Next Git hunk" })
 
 km.set("n", "[c", function()
 	if vim.wo.diff then
-		return "[c"
+		vim.cmd.normal({ "[c", bang = true })
+	else
+		require("gitsigns").nav_hunk("prev")
 	end
-	vim.schedule(gs.prev_hunk)
-end, { expr = true, desc = "Prev Git hunk" })
+end, { desc = "Prev Git hunk" })
 
 ----------------------------
 --  Keymaps for diffview  --
@@ -187,118 +190,86 @@ km.set("n", "<leader>gmr", ":DiffviewOpen origin/main...HEAD<CR>", { desc = "Rei
 ---------------------------
 --  Keymaps for harpoon  --
 ---------------------------
-local harpoon = require("harpoon")
-
+-- harpoon is set up by its plugin spec (lua/plugins/utils.lua) the first time it is required
 km.set("n", "<leader>ha", function()
-	harpoon:list():add()
+	require("harpoon"):list():add()
 end, { desc = "Add file to Harpoon" })
 km.set("n", "<leader>hs", function()
+	local harpoon = require("harpoon")
 	harpoon.ui:toggle_quick_menu(harpoon:list())
 end, { desc = "Toggle Harpoon menu" })
 
 km.set("n", "<leader>h1", function()
-	harpoon:list():select(1)
+	require("harpoon"):list():select(1)
 end, { desc = "Harpoon jump 1" })
 km.set("n", "<leader>h2", function()
-	harpoon:list():select(2)
+	require("harpoon"):list():select(2)
 end, { desc = "Harpoon jump 2" })
 km.set("n", "<leader>h3", function()
-	harpoon:list():select(3)
+	require("harpoon"):list():select(3)
 end, { desc = "Harpoon jump 3" })
 km.set("n", "<leader>h4", function()
-	harpoon:list():select(4)
+	require("harpoon"):list():select(4)
 end, { desc = "Harpoon jump 4" })
 
-km.set("n", "<leader>hn", function()
-	harpoon:list():next()
-end, { desc = "Harpoon next file" })
 km.set("n", "<leader>hp", function()
-	harpoon:list():prev()
+	require("harpoon"):list():next()
+end, { desc = "Harpoon next file" })
+km.set("n", "<leader>hn", function()
+	require("harpoon"):list():prev()
 end, { desc = "Harpoon previous file" })
 
-vim.keymap.set("n", "<leader>hdc", function()
-	harpoon:list():remove()
-end, { desc = "Harpoon: remove current file" })
-
+-- remove_at, not remove: HarpoonList:remove(item) compares by value, remove_at(index) by position
 vim.keymap.set("n", "<leader>hd1", function()
-	require("harpoon"):list():remove(1)
+	require("harpoon"):list():remove_at(1)
 end)
 
 vim.keymap.set("n", "<leader>hd2", function()
-	require("harpoon"):list():remove(2)
+	require("harpoon"):list():remove_at(2)
 end)
 
 vim.keymap.set("n", "<leader>hd3", function()
-	require("harpoon"):list():remove(3)
+	require("harpoon"):list():remove_at(3)
 end)
 
 vim.keymap.set("n", "<leader>hd4", function()
-	require("harpoon"):list():remove(4)
+	require("harpoon"):list():remove_at(4)
 end)
 
 ------------------------------------------------
 --  Keymaps for DAP (Debug Adapter Protocol)  --
 ------------------------------------------------
-local dap = require("dap")
-local dapui = require("dapui")
-
-local function set_dap_keymaps()
-	km.set("n", "<Down>", dap.step_over, { silent = true, desc = "DAP Step Over" })
-	km.set("n", "<Right>", dap.step_into, { silent = true, desc = "DAP Step Into" })
-	km.set("n", "<Left>", dap.step_out, { silent = true, desc = "DAP Step Out" })
-	km.set("n", "<Up>", dap.restart_frame, { silent = true, desc = "DAP Restart Frame" })
-end
-
--- Remove keymaps when debug session ends
-local function clear_dap_keymaps()
-	km.del("n", "<Down>")
-	km.del("n", "<Right>")
-	km.del("n", "<Left>")
-	km.del("n", "<Up>")
-end
-
--- Set up listeners to set/clear keymaps during DAP sessions
-dap.listeners.after.event_initialized["dap_keymaps"] = function()
-	set_dap_keymaps()
-end
-
-dap.listeners.before.event_terminated["dap_keymaps"] = function()
-	clear_dap_keymaps()
-end
-
-dap.listeners.before.event_exited["dap_keymaps"] = function()
-	clear_dap_keymaps()
-end
-
+-- nvim-dap loads (with config/debugger.lua) on the first require below.
+-- The arrow-key stepping maps that exist only during a session are set in config/debugger_local.lua.
 km.set("n", "<Leader>db", function()
-	dap.toggle_breakpoint()
+	require("dap").toggle_breakpoint()
 end, { noremap = true, silent = true })
-km.set("n", "<Leader>dBc", function()
-	dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
+km.set("n", "<Leader>dbc", function()
+	require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
 end, { noremap = true, silent = true })
 km.set("n", "<leader>dBh", function()
 	local hitCon = vim.fn.input("Break on hit (e.g. '>= 10', '==3', '% 5'): ")
-	dap.set_breakpoint(nil, hitCon, nil)
+	require("dap").set_breakpoint(nil, hitCon, nil)
 end)
 km.set("n", "<leader>dBa", function()
 	local con = vim.fn.input("Breakpoint condition: ")
 	local hitCon = vim.fn.input("Break on hit (e.g. '>= 10', '==3', '% 5'): ")
-	dap.set_breakpoint(con, hitCon, nil)
+	require("dap").set_breakpoint(con, hitCon, nil)
 end)
 km.set("n", "<Leader>dr", function()
-	dap.continue()
+	require("dap").continue()
 end, { desc = "Continue debugging", noremap = true, silent = true })
 km.set("n", "<Leader>dt", function()
-	dap.run_to_cursor()
+	require("dap").run_to_cursor()
 end, { desc = "Run to cursor", noremap = true, silent = true })
 km.set("n", "<Leader>de", function()
-	dap.terminate()
+	require("dap").terminate()
 end, { noremap = true, silent = true })
 km.set("n", "<Leader>dp", function()
-	dap.repl.open()
+	require("dap").repl.open()
 end, { noremap = true, silent = true })
 km.set("n", "<Leader>du", function()
-	dapui.toggle()
+	require("dapui").toggle()
 end, { noremap = true, silent = true, desc = "Open DAP View" })
 km.set("n", "<leader>d1", function()
 	require("dapui").float_element("repl", { enter = true })
@@ -446,9 +417,8 @@ km.set("n", "<leader>sr", "<cmd>AutoSession restore<CR>", { desc = "Restore sess
 km.set("n", "<leader>sd", "<cmd>AutoSession delete<CR>", { desc = "Delete session" })
 km.set("n", "<leader>sD", "<cmd>AutoSessionRemoveAll<CR>", { desc = "Delete all auto-session sessions" })
 
--- setup telescope
-require("telescope").load_extension("session-lens")
-km.set("n", "<leader>sl", "<cmd>Telescope session-lens<CR>", { desc = "Search sessions" })
+-- session picker via fzf-lua (session_lens.picker in lua/plugins/utils.lua)
+km.set("n", "<leader>sl", "<cmd>AutoSession search<CR>", { desc = "Search sessions" })
 
 ------------------------------
 --  Keymaps for Snippet  --
@@ -473,11 +443,27 @@ end, { desc = "Decouple Snippet" })
 ------------------------------
 --  Keymaps for Toggleterm  --
 ------------------------------
--- toggleterm itself is configured in lua/config/utils.lua
+-- toggleterm itself is configured (and lazy-loaded) in lua/plugins/utils.lua
 km.set("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
 km.set("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Horizontal terminal" })
 km.set("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Vertical terminal" })
 km.set("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", { desc = "Floating terminal" })
+
+-- Terminal-mode keymaps: <Esc> to leave insert, <C-hjkl> to move between windows
+function _G.set_terminal_keymaps()
+	local opts = { noremap = true }
+	vim.api.nvim_buf_set_keymap(0, "t", "<esc>", [[<C-\><C-n>]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-h>", [[<C-\><C-n><C-W>h]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-j>", [[<C-\><C-n><C-W>j]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-k>", [[<C-\><C-n><C-W>k]], opts)
+	vim.api.nvim_buf_set_keymap(0, "t", "<C-l>", [[<C-\><C-n><C-W>l]], opts)
+end
+
+vim.api.nvim_create_autocmd("TermOpen", {
+	group = vim.api.nvim_create_augroup("TerminalKeymaps", { clear = true }),
+	pattern = "term://*",
+	callback = _G.set_terminal_keymaps,
+})
 
 -----------------------------
 --  Keymaps for undo tree  --

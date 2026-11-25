@@ -41,7 +41,16 @@ cmp.setup({
     }),
     sources = {
         { name = 'nvim_lsp' },
-        { name = 'buffer' },
+        {
+            name = 'buffer',
+            option = {
+                -- don't index big files (vim.b.bigfile is set in config/autocmds.lua)
+                get_bufnrs = function()
+                    local buf = vim.api.nvim_get_current_buf()
+                    return vim.b[buf].bigfile and {} or { buf }
+                end,
+            },
+        },
         { name = 'luasnip' }, -- For luasnip users.
         { name = 'path' },
     },

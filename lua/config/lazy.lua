@@ -30,6 +30,12 @@ require("lazy").setup({
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.
 	install = { colorscheme = { "habamax" } },
-	-- automatically check for plugin updates
-	checker = { enabled = true },
+	-- automatically check for plugin updates (daily; hourly fetched ~50 repos over NFS each time)
+	checker = { enabled = true, frequency = 86400 },
+	performance = {
+		rtp = {
+			-- built-in runtime plugins that are never used here (netrw stays enabled)
+			disabled_plugins = { "gzip", "tarPlugin", "tutor", "zipPlugin", "rplugin" },
+		},
+	},
 })

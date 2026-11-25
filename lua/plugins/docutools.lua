@@ -2,7 +2,7 @@ return {
     {
         "iamcco/markdown-preview.nvim",
         cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-        build = 'cd app && npm install', -- Install the preview server with lazy.nvim.
+        build = 'cd app && npm install',  -- Make sure to install dependencies (lazy.nvim runs `build`, not packer's `run`)
         ft = { "markdown" },
     },
     {
@@ -11,16 +11,19 @@ return {
     },
     {
         'MeanderingProgrammer/render-markdown.nvim',
+        ft = { "markdown" },
         opts = {},
     },
     {
         "bullets-vim/bullets.vim",
-        config = function()
+        ft = { "markdown", "text", "gitcommit", "scratch" },
+        -- init, not config: bullets.vim reads this when it loads
+        init = function()
             vim.g.bullets_enabled_file_types = { "markdown", "text", "gitcommit", "scratch" }
         end,
     },
-    { "tpope/vim-surround", },
-    { "mbbill/undotree", },
+    { "tpope/vim-surround", event = "VeryLazy" },
+    { "mbbill/undotree", cmd = "UndotreeToggle" },
     {
         'windwp/nvim-autopairs',
         event = "InsertEnter",
@@ -28,6 +31,7 @@ return {
     },
     {
         "L3MON4D3/LuaSnip",
+        lazy = true, -- loaded with nvim-cmp
         dependencies = {
             "rafamadriz/friendly-snippets",
         },
@@ -36,7 +40,7 @@ return {
         "lervag/vimtex",
         lazy = false,     -- we don't want to lazy load VimTeX
         init = function()
-            local sysname = vim.loop.os_uname().sysname
+            local sysname = vim.uv.os_uname().sysname
             if sysname == "Darwin" then  -- macOS
                 vim.g.vimtex_view_method = "skim"
             elseif sysname == "Linux" then  -- Linux
@@ -50,11 +54,5 @@ return {
             end
         end
     },
-    { "norcalli/nvim-colorizer.lua", },
-    {
-        'numToStr/Comment.nvim',
-        opts = {
-            -- add any options here
-        }
-    }
+    -- Comment.nvim removed: Neovim 0.10+ has built-in gc / gcc commenting
 }

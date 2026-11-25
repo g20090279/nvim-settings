@@ -1,3 +1,23 @@
+if vim.env.ZELLIJ then
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = {
+      ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+      ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+    },
+    paste = {
+      ["+"] = function()
+        return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
+      end,
+      ["*"] = function()
+        return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
+      end,
+    },
+  }
+else
+  vim.opt.clipboard = "unnamedplus"
+end
+
 vim.api.nvim_create_user_command("CdRoot", function()
     local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
     if vim.v.shell_error == 0 and git_root and git_root ~= "" then
@@ -19,12 +39,7 @@ require("config.lazy")
 require("config.theme")
 require("config.lsp.servers")
 require("config.lsp.mason")
-require("config.cmp")
-require("config.file-explorer")
 require("config.statusline")
-require("config.debugger")
-require("config.ai")
-require("config.search")
-require("config.utils")
 require("config.keymaps")
-require("config.docutools")
+require("config.autocmds")
+-- config.cmp and config.debugger are loaded by their plugin specs (lua/plugins/)

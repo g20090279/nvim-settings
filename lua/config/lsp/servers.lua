@@ -1,4 +1,5 @@
 local common = require("config.lsp.common")
+local python = require("common.python")
 
 local function config_server(name, conf)
 	local settings = nil
@@ -16,12 +17,18 @@ local function config_server(name, conf)
 				},
 			},
 		}
-    elseif name == "texlab" then
-        settings = {
-            texlab = {
-                bibtexFormatter = "texlab"
-            }
-        }
+	elseif name == "texlab" then
+		settings = {
+			texlab = {
+				bibtexFormatter = "texlab",
+			},
+		}
+	elseif name == "pyright" then
+		settings = {
+			python = {
+				pythonPath = python.get_python_path(),
+			},
+		}
 	end
 
 	-- root_markers lets Neovim find the project root per buffer (searching upward
@@ -60,12 +67,39 @@ local servers = {
 			".ltex.toml",
 		},
 	},
-    texlab = {
-        cmd = { "texlab" }
-    }
+	texlab = {
+		cmd = { "texlab" },
+	},
+	matlab_ls = {
+		cmd = { "matlab-language-server", "--stdio" },
+		-- markers are exact names, so match the project file extensions with a function
+		root_markers = {
+			".git",
+			function(name)
+				return name:match("%.prj$") ~= nil or name:match("%.mlproj$") ~= nil
+			end,
+		},
+	},
 }
 
 for name, config in pairs(servers) do
 	config_server(name, config)
 	vim.lsp.enable(name)
+end
+
+---------------------------
+--- Reduce LSP log file ---
+---------------------------
+vim.lsp.log.set_level("ERROR")
+
+local log_path = vim.lsp.log.get_filename()
+
+local stat = vim.uv.fs_stat(log_path)
+
+-- truncate if larger than 10 MB
+if stat and stat.size > 10 * 1024 * 1024 then
+    local fd = io.open(log_path, "w")
+    if fd then
+        fd:close()
+    end
 end
